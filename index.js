@@ -7,6 +7,17 @@ const todoRoutes = require('./routes/todo');
 const app = express();
 const port = process.env.PORT || 8000;
 
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'Server attivo',
+    routes: {
+      createTodo: 'POST /api/todo/create',
+      listTodos: 'GET /api/todos',
+      deleteTodo: 'DELETE /api/todo/:id',
+    },
+  });
+});
+
 // route middlewares
 app.use('/api', todoRoutes);
 
