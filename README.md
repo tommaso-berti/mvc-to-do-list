@@ -1,138 +1,134 @@
-## To-Do List MVC Application
+# To-Do List MVC (Node.js + Express + PostgreSQL + React)
 
-This project implements a simple full-stack to-do list web application using the **MVC (Model-View-Controller)** architectural pattern. The application enables users to create tasks, retrieve all tasks, and delete completed tasks through a RESTful API.
+This project is a full-stack to-do list application built to practice the **MVC (Model-View-Controller)** pattern with a Node.js/Express API, PostgreSQL persistence, and a React client.
 
----
+## Learning Goals
 
-## Objectives
+- Apply MVC separation in a real project structure
+- Build and expose REST-style API endpoints with Express
+- Connect and query PostgreSQL from Node.js
+- Integrate a React front-end with a backend API
+- Manage a local full-stack development workflow
 
-- Build REST API endpoints using **Express**
-- Implement separation of concerns with MVC
-- Connect a PostgreSQL database to a Node.js backend
-- Develop a React front-end that interacts with the API
-- Run the project locally using a standard development setup
+## Tech Stack
 
----
+- Backend: Node.js, Express, Formidable, dotenv
+- Database: PostgreSQL (`pg`)
+- Frontend: React (Create React App)
+- Dev tools: Nodemon, ESLint, Prettier
 
 ## Project Structure
 
-root
-├── controller
-├── model
-├── routes
-├── view (React app)
+```text
+.
+├── controller/
+│   └── index.js
+├── model/
+│   ├── database.js
+│   ├── todo.js
+│   └── todo.sql
+├── routes/
+│   └── todo.js
+├── view/
+│   ├── public/
+│   ├── src/
+│   │   ├── App.js
+│   │   └── util/index.js
+│   └── package.json
 ├── index.js
-├── database.js
-├── todo.sql
 └── package.json
+```
 
-- **model** — Database access and SQL logic  
-- **controller** — Request handling and business logic  
-- **routes** — API routing layer  
-- **view** — React front-end  
+- `model/`: DB connection + SQL operations
+- `controller/`: request parsing + business logic
+- `routes/`: endpoint mapping
+- `view/`: React UI and API utility functions
 
----
+## API Endpoints
 
-## Setup Steps
+All API routes are mounted under `/api`.
 
-### 1. Install Dependencies
-- Install root dependencies using `npm install`
-- Navigate to `view` and install front-end dependencies
+- `POST /api/todo/create` - create a new task
+- `GET /api/todos` - fetch all tasks (ordered by `todo_id`)
+- `DELETE /api/todo/:id` - delete a task by id
 
-### 2. Configure PostgreSQL
-- Install PostgreSQL locally
-- Create the database and table using `todo.sql`
+Base health/info route:
 
-### 3. Configure Environment Variables
-Create a `.env` file:
+- `GET /` - returns server status + listed routes
 
-DB_USER=
-DB_PASSWORD=
+## Database Setup
+
+1. Create the database and table:
+```sql
+CREATE DATABASE todo;
+
+CREATE TABLE todo(
+  todo_id SERIAL PRIMARY KEY,
+  description VARCHAR(225) NOT NULL
+);
+```
+
+2. You can execute the SQL from `model/todo.sql`.
+
+## Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+DB_USER=your_postgres_user
+DB_PASSWORD=your_postgres_password
 DB_HOST=localhost
 DB_PORT=5432
 DB_DATABASE=todo
 PORT=8000
+```
 
----
+## Installation
 
-## Implementation Steps
+1. Install backend dependencies:
+```bash
+npm install
+```
 
-### Model Layer
+2. Install frontend dependencies:
+```bash
+cd view
+npm install
+cd ..
+```
 
-1. Move `database.js` and `todo.sql` into the **model** directory
-2. Create `model/todo.js`
-3. Establish a PostgreSQL connection pool
-4. Implement database functions:
-   - **create(description)** → insert task
-   - **get()** → fetch tasks
-   - **remove(id)** → delete task
-5. Export model functions
+## Run the Project
 
----
+1. Start the backend (root folder):
+```bash
+npm start
+```
 
-### Controller Layer
+2. Start the frontend (in `view`):
+```bash
+cd view
+npm start
+```
 
-1. Create `controller/index.js`
-2. Import **formidable** and model functions
-3. Implement middleware:
-   - **create** → parse form and store task
-   - **read** → fetch all tasks
-   - **removeTodo** → delete task by id
+3. Open:
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:8000`
 
----
+The React app is configured with a proxy to `http://localhost:8000`, so API calls from the UI work in development without extra CORS setup.
 
-### Routing Layer
+## MVC Flow (How It Works)
 
-1. Create `routes/todo.js`
-2. Initialize Express router
-3. Define endpoints:
-   - `POST /todo/create`
-   - `GET /todos`
-   - `DELETE /todo/:id`
-4. Export router
+1. The user submits a task from React (`view/src/App.js`).
+2. Utility functions in `view/src/util/index.js` call backend endpoints.
+3. Routes (`routes/todo.js`) delegate to controller handlers.
+4. Controllers (`controller/index.js`) validate/parse request data and call model functions.
+5. Models (`model/todo.js`) run SQL queries through the PostgreSQL pool (`model/database.js`).
+6. The response is returned to React and rendered in the UI.
 
----
+## Possible Improvements
 
-### View Layer
-
-1. Create `view/src/util/index.js`
-2. Implement API utilities:
-   - **createTodo(todo)** → POST request
-   - **getTodos()** → GET request
-   - **removeTodo(id)** → DELETE request
-
-3. Update `App.js`:
-   - Implement **fetchTodos**
-   - Implement **handleSubmit**
-   - Implement **handleDelete**
-
----
-
-## Running the Application
-
-1. Start backend server (using nodemon)
-2. Start React app inside `view`
-3. Ensure backend runs before frontend
-4. Access the application in the browser
-
----
-
-## Result
-
-The application demonstrates:
-
-- Proper MVC separation
-- RESTful API implementation
-- Database-driven persistence
-- Front-end and back-end integration
-- Modular and maintainable full-stack architecture
-
----
-
-## Optional Improvements
-
-- Add update functionality (complete CRUD)
-- Improve validation and error handling
-- Implement pagination or filtering
-- Enhance UI and state management
-- Add authentication and authorization
+- Add update endpoint (`PUT/PATCH`) for full CRUD
+- Add stricter validation and unified error messages
+- Add loading/empty states and better UX feedback
+- Add tests for API routes and React components
+- Add Docker configuration for easier setup
